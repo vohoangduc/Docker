@@ -7,12 +7,28 @@ services:
     image: learning-docker
     container_name: learning_app
     volumes:
-      - .:/var/www
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     depends_on:
       - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - laravel
 
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "7081:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - laravel
     #MySQL Service
   db:
     image: mysql:5.7
@@ -24,14 +40,11 @@ services:
     environment:
       MYSQL_DATABASE: learning_docker
       MYSQL_ROOT_PASSWORD: Pss201901
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
     volumes:
       - ./db:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - laravel
-
     #PhpMyadmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
