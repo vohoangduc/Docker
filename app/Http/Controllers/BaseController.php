@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class BaseController extends Controller
 {
@@ -39,5 +39,32 @@ class BaseController extends Controller
         } else {
             return response()->json($response);
         }
+    }
+
+        /**
+     * return error response.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sendEmail($page, $toEmail, $bccEmail, $data, $title)
+    {
+       try {
+           $email = config('mail.from')['address'];
+            $name_email = config('mail.from')['name'];
+            Mail::send($page, $data, function ($message) use ($toEmail, $bccEmail, $email, $name_email, $title) {
+                $message->from($email, $name_email)
+                    ->subject($title);
+                    $message->to($toEmail);
+
+                    if (!empty($bccEmail)) {
+                        $message->bcc($bccEmail);
+                    }
+
+            });
+
+       } catch (\Exception $e) {
+        
+            logger($e->getMessage());
+       }
     }
 }

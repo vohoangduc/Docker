@@ -25,4 +25,10 @@ class LoginController extends BaseController
 
         return $this->sendSuccessResponse('Login successfully', $data);
     }
+
+    public function logout() {
+        auth()->logout();
+
+        return $this->sendSuccessResponse('logout successfully');
+    }
 }
